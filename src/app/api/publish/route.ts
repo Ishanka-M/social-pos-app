@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         userId: (session.user as any).id,
-                        userName: session.user?.name,
+                        userName: (session.user?.name || "User") as string,
                         merchantId: (session.user as any).id,
                         title,
                         price,
