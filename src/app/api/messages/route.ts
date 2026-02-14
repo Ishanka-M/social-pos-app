@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
         await Message.create({
             senderId: (session.user as any).id,
-            senderName: (session.user?.name || "Unknown User") as string,
+            senderName: (session.user as any).name || "Unknown User",
             content: body.content
         });
 
