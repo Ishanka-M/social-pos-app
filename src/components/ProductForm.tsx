@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import SocialPreview from "@/components/SocialPreview";
-import { Upload, Loader2, CheckCircle2 } from "lucide-react";
+import { Upload, Loader2, CheckCircle2, Calendar } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ProductForm() {
@@ -26,6 +26,9 @@ export default function ProductForm() {
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>("");
+    const [enableScheduling, setEnableScheduling] = useState(false);
+    const [scheduledDate, setScheduledDate] = useState("");
+    const [scheduledTime, setScheduledTime] = useState("");
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -54,25 +57,20 @@ export default function ProductForm() {
         setLoading(true);
 
         try {
-            // 1. Upload logic (if file selected)
-            let finalImageUrl = formData.imageUrl;
-
-            if (imageFile) {
-                const uploadFormData = new FormData();
-                uploadFormData.append("file", imageFile);
-                uploadFormData.append("upload_preset", "products_unsigned"); // Need to set this up or use API route
-
-                // We will send file to our API route to handle upload securely
-                // Actually, better to send everything to API route as FormData
-            }
-
             const formPayload = new FormData();
             formPayload.append("title", formData.title);
             formPayload.append("price", formData.price);
             formPayload.append("description", formData.description);
             formPayload.append("platforms", JSON.stringify(formData.platforms));
+
             if (imageFile) {
-                formPayload.append("image", imageFile); // Send file to server
+                formPayload.append("image", imageFile);
+            }
+
+            // Add scheduling if enabled
+            if (enableScheduling && scheduledDate && scheduledTime) {
+                const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+                formPayload.append("scheduledFor", scheduledDateTime.toISOString());
             }
 
             const response = await fetch("/api/publish", {
@@ -85,10 +83,19 @@ export default function ProductForm() {
                 throw new Error(errorData.error || "Failed to publish");
             }
 
-            toast.success("Product published successfully!", {
-                description: "Your product is now live on selected platforms.",
-                icon: <CheckCircle2 className="text-green-500" />
-            });
+            const data = await response.json();
+
+            if (data.scheduled) {
+                toast.success("Product scheduled successfully!", {
+                    description: data.message,
+                    icon: <Calendar className="text-blue-500" />
+                });
+            } else {
+                toast.success("Product published successfully!", {
+                    description: "Your product is now live on selected platforms.",
+                    icon: <CheckCircle2 className="text-green-500" />
+                });
+            }
 
             // Reset form
             setFormData({
@@ -100,6 +107,9 @@ export default function ProductForm() {
             });
             setImageFile(null);
             setPreviewUrl("");
+            setEnableScheduling(false);
+            setScheduledDate("");
+            setScheduledTime("");
 
         } catch (error: any) {
             console.error(error);
@@ -210,14 +220,66 @@ export default function ProductForm() {
                             </div>
                         </div>
 
+                        {/* Scheduling Section */}
+                        <div className="space-y-4 pt-4 border-t">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="scheduling">Schedule Post</Label>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Post at a specific date and time
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="scheduling"
+                                    checked={enableScheduling}
+                                    onCheckedChange={setEnableScheduling}
+                                />
+                            </div>
+
+                            {enableScheduling && (
+                                <div className="grid grid-cols-2 gap-4 mt-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="scheduledDate">Date</Label>
+                                        <Input
+                                            id="scheduledDate"
+                                            type="date"
+                                            value={scheduledDate}
+                                            onChange={(e) => setScheduledDate(e.target.value)}
+                                            min={new Date().toISOString().split('T')[0]}
+                                            required={enableScheduling}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="scheduledTime">Time</Label>
+                                        <Input
+                                            id="scheduledTime"
+                                            type="time"
+                                            value={scheduledTime}
+                                            onChange={(e) => setScheduledTime(e.target.value)}
+                                            required={enableScheduling}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                         <Button type="submit" className="w-full" size="lg" disabled={loading}>
                             {loading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Publishing...
+                                    {enableScheduling ? "Scheduling..." : "Publishing..."}
                                 </>
                             ) : (
-                                "Publish Product"
+                                <>
+                                    {enableScheduling ? (
+                                        <>
+                                            <Calendar className="mr-2 h-4 w-4" />
+                                            Schedule Product
+                                        </>
+                                    ) : (
+                                        "Publish Product"
+                                    )}
+                                </>
                             )}
                         </Button>
                     </form>

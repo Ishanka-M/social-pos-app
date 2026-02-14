@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
+import User from "@/models/User";
+import SystemConfig from "@/models/SystemConfig";
 import { v2 as cloudinary } from "cloudinary";
 
 // Configure Cloudinary
@@ -11,6 +15,12 @@ cloudinary.config({
 });
 
 export async function POST(req: NextRequest) {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     try {
         const formData = await req.formData();
         const title = formData.get("title") as string;
@@ -19,6 +29,7 @@ export async function POST(req: NextRequest) {
         const platformsStr = formData.get("platforms") as string;
         const platforms = JSON.parse(platformsStr);
         const imageFile = formData.get("image") as File;
+        const scheduledFor = formData.get("scheduledFor") as string | null; // Optional scheduled date
 
         if (!title || !price) {
             return NextResponse.json(
@@ -28,6 +39,21 @@ export async function POST(req: NextRequest) {
         }
 
         await dbConnect();
+
+        // Get user's webhook URL or fallback to system default
+        const user = await User.findById((session.user as any).id);
+        let webhookUrl = user?.webhookUrl;
+
+        if (!webhookUrl) {
+            // Fallback to system webhook if user hasn't set one
+            const systemConfig = await SystemConfig.findOne();
+            webhookUrl = systemConfig?.makeWebhookUrl;
+        }
+
+        // If still no webhook, check env variable
+        if (!webhookUrl) {
+            webhookUrl = process.env.MAKE_WEBHOOK_URL;
+        }
 
         // handle image upload
         let imageUrl = "";
@@ -49,25 +75,34 @@ export async function POST(req: NextRequest) {
             imageUrl = uploadResult.secure_url;
         }
 
+        // Determine if this is a scheduled post
+        const isScheduled = scheduledFor ? new Date(scheduledFor) > new Date() : false;
+
         // Save to MongoDB
         const newProduct = await Product.create({
-            merchantId: "demo_merchant_123", // Hardcoded for demo
+            userId: (session.user as any).id,
+            merchantId: (session.user as any).id, // Using userId as merchantId
             title,
             price,
             description,
             imageUrl,
-            platforms
+            platforms,
+            scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined,
+            isScheduled,
+            isPosted: !isScheduled, // If not scheduled, mark as posted immediately
+            postedAt: !isScheduled ? new Date() : undefined
         });
 
-        // Trigger Make.com Webhook
-        const webhookUrl = process.env.MAKE_WEBHOOK_URL;
-        if (webhookUrl) {
+        // Only trigger webhook if NOT scheduled (scheduled posts will be handled by a cron job later)
+        if (!isScheduled && webhookUrl) {
             try {
                 await fetch(webhookUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        merchantId: "demo_merchant_123",
+                        userId: (session.user as any).id,
+                        userName: session.user?.name,
+                        merchantId: (session.user as any).id,
                         title,
                         price,
                         description,
@@ -77,12 +112,19 @@ export async function POST(req: NextRequest) {
                     }),
                 });
             } catch (webhookError) {
-                console.error("Webhook triggers failed", webhookError);
-                // We generally don't fail the whole request if webhook fails, but log it
+                console.error("Webhook trigger failed", webhookError);
+                // We don't fail the whole request if webhook fails
             }
         }
 
-        return NextResponse.json({ success: true, product: newProduct });
+        return NextResponse.json({
+            success: true,
+            product: newProduct,
+            scheduled: isScheduled,
+            message: isScheduled
+                ? `Product scheduled for ${new Date(scheduledFor!).toLocaleString()}`
+                : "Product posted successfully!"
+        });
     } catch (error: any) {
         console.error("API Error:", error);
         return NextResponse.json(
@@ -91,3 +133,4 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
