@@ -1,9 +1,16 @@
+"use client";
+
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, BarChart3, Users, DollarSign } from "lucide-react";
+import ContactAdmin from "@/components/ContactAdmin";
 
 export default function Home() {
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === 'admin';
+
   return (
     <div className="space-y-8 fade-in-up">
       <div className="flex items-center justify-between">
@@ -11,14 +18,16 @@ export default function Home() {
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back to your social commerce hub.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button asChild>
-            <Link href="/new">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              New Post
-            </Link>
-          </Button>
-        </div>
+        {!isAdmin && (
+          <div className="flex items-center gap-2">
+            <Button asChild>
+              <Link href="/new">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Post
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -122,6 +131,14 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Show Contact Admin section only for non-admin users */}
+      {!isAdmin && (
+        <div className="max-w-2xl">
+          <ContactAdmin />
+        </div>
+      )}
     </div>
   );
 }
+

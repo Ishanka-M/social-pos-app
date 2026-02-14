@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   description: "Manage products and social media posts",
 };
 
+import AuthProvider from "@/components/AuthProvider";
+import MainLayout from "@/components/MainLayout";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,20 +23,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="flex h-screen overflow-hidden bg-background start-layout">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
-              {children}
-            </main>
-          </div>
-          <Toaster />
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <MainLayout>{children}</MainLayout>
+            <Toaster />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
