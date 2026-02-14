@@ -231,7 +231,7 @@ export default function ProductForm() {
                     <div className="space-y-6">
                         {formData.platforms.fb && (
                             <SocialPreview
-                                width="100%"
+
                                 title={formData.title || "Product Title"}
                                 price={formData.price}
                                 description={formData.description || "Product description will appear here..."}
@@ -241,7 +241,7 @@ export default function ProductForm() {
                         )}
                         {formData.platforms.ig && (
                             <SocialPreview
-                                width="100%"
+
                                 title={formData.title || "Product Title"}
                                 price={formData.price}
                                 description={formData.description || "Product description..."}
@@ -251,7 +251,7 @@ export default function ProductForm() {
                         )}
                         {formData.platforms.tt && (
                             <SocialPreview
-                                width="100%"
+
                                 title={formData.title || "Product Title"}
                                 price={formData.price}
                                 description={formData.description || "Product description..."}
