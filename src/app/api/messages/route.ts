@@ -1,4 +1,4 @@
-// BUILD_TAG: 2026-02-14-22-38
+// BUILD_TAG: 2026-02-14-22-45
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -16,18 +16,19 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         await dbConnect();
 
-        const sessionUser = session.user as any;
-        const sId: string = sessionUser?.id || "";
-        const sName: string = sessionUser?.name || "Unknown User";
+        const sessionUser = (session.user as any) || {};
+        const sId: string = String(sessionUser.id || "");
+        const sName: string = String(sessionUser.name || "Unknown User");
+        const sContent: string = String(body.content || "");
 
-        if (!body.content) {
+        if (!sContent) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });
         }
 
         await Message.create({
             senderId: sId,
             senderName: sName,
-            content: body.content as string
+            content: sContent
         });
 
         return NextResponse.json({ success: true });
