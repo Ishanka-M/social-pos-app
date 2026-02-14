@@ -1,3 +1,4 @@
+// BUILD_TAG: 2026-02-14-22-38
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
