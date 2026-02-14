@@ -36,8 +36,8 @@ export const authOptions: NextAuthOptions = {
                     console.log("🔥 Admin user created automatically.");
                 }
 
-                if (!user) {
-                    throw new Error('No user found with this email');
+                if (!user || !user.password) {
+                    throw new Error('No user found or password not set');
                 }
 
                 const isMatch = await bcrypt.compare(credentials.password, user.password);

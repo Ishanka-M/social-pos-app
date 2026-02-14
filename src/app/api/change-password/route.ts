@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "User or password not found" }, { status: 404 });
         }
 
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        const isMatch = await bcrypt.compare(currentPassword, user.password as string);
         if (!isMatch) {
             return NextResponse.json({ error: "Current password is incorrect" }, { status: 400 });
         }
