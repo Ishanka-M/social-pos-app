@@ -17,19 +17,21 @@ export async function POST(req: NextRequest) {
         await dbConnect();
 
         const sessionUser = (session.user as any) || {};
-        const sId: string = String(sessionUser.id || "");
-        const sName: string = String(sessionUser.name || "Unknown User");
-        const sContent: string = String(body.content || "");
+        const senderId: string = String(sessionUser.id || "system");
+        const senderName: string = String(sessionUser.name || "Unknown User");
+        const contentStr: string = String(body.content || "");
 
-        if (!sContent) {
+        if (!contentStr) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });
         }
 
-        await Message.create({
-            senderId: sId,
-            senderName: sName,
-            content: sContent
-        });
+        const messageData = {
+            senderId: senderId,
+            senderName: senderName,
+            content: contentStr
+        };
+
+        await Message.create(messageData);
 
         return NextResponse.json({ success: true });
     } catch (error) {
