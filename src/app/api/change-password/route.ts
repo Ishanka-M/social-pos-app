@@ -27,8 +27,8 @@ export async function POST(req: NextRequest) {
 
         // Verify current password
         const user = await User.findById((session.user as any).id);
-        if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        if (!user || !user.password) {
+            return NextResponse.json({ error: "User or password not found" }, { status: 404 });
         }
 
         const isMatch = await bcrypt.compare(currentPassword, user.password);
