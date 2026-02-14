@@ -55,7 +55,7 @@ export default function SocialPreview({ title, price, description, imageUrl, pla
                 <div className="space-y-2">
                     <p className="text-sm leading-relaxed">
                         <span className="font-semibold">{title}</span>
-                        {price && <span className="ml-2 px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-600 text-[10px] font-bold">${price}</span>}
+                        {price && <span className="ml-2 px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-600 text-[10px] font-bold">Rs. {price}</span>}
                         <br />
                         <span className="text-muted-foreground text-xs">{description}</span>
                     </p>
