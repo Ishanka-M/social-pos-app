@@ -16,10 +16,18 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         await dbConnect();
 
+        const sessionUser = session.user as any;
+        const sId: string = sessionUser?.id || "";
+        const sName: string = sessionUser?.name || "Unknown User";
+
+        if (!body.content) {
+            return NextResponse.json({ error: "Content is required" }, { status: 400 });
+        }
+
         await Message.create({
-            senderId: (session.user as any).id,
-            senderName: (session.user as any).name || "Unknown User",
-            content: body.content
+            senderId: sId,
+            senderName: sName,
+            content: body.content as string
         });
 
         return NextResponse.json({ success: true });
