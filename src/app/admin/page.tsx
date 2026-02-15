@@ -101,7 +101,7 @@ export default function AdminPanel() {
 
     const fetchMessages = async () => {
         try {
-            const res = await fetch("/api/messages");
+            const res = await fetch("/api/contact");
             const data = await res.json();
             if (res.ok) {
                 setMessages(data.messages);
@@ -250,7 +250,7 @@ export default function AdminPanel() {
 
     const handleMarkAsRead = async (messageId: string) => {
         try {
-            const res = await fetch(`/api/messages?id=${messageId}`, {
+            const res = await fetch(`/api/contact?id=${messageId}`, {
                 method: "PUT",
             });
 
@@ -292,8 +292,8 @@ export default function AdminPanel() {
                 <button
                     onClick={() => setActiveTab("users")}
                     className={`px-4 py-2 font-medium transition-colors ${activeTab === "users"
-                            ? "border-b-2 border-primary text-primary"
-                            : "text-muted-foreground hover:text-foreground"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <Users className="inline h-4 w-4 mr-2" />
@@ -302,8 +302,8 @@ export default function AdminPanel() {
                 <button
                     onClick={() => setActiveTab("messages")}
                     className={`px-4 py-2 font-medium transition-colors ${activeTab === "messages"
-                            ? "border-b-2 border-primary text-primary"
-                            : "text-muted-foreground hover:text-foreground"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <MessageSquare className="inline h-4 w-4 mr-2" />
@@ -312,8 +312,8 @@ export default function AdminPanel() {
                 <button
                     onClick={() => setActiveTab("password")}
                     className={`px-4 py-2 font-medium transition-colors ${activeTab === "password"
-                            ? "border-b-2 border-primary text-primary"
-                            : "text-muted-foreground hover:text-foreground"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <Lock className="inline h-4 w-4 mr-2" />
@@ -322,8 +322,8 @@ export default function AdminPanel() {
                 <button
                     onClick={() => setActiveTab("automation")}
                     className={`px-4 py-2 font-medium transition-colors ${activeTab === "automation"
-                            ? "border-b-2 border-primary text-primary"
-                            : "text-muted-foreground hover:text-foreground"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <Settings className="inline h-4 w-4 mr-2" />

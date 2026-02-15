@@ -20,7 +20,7 @@ export default function ContactAdmin() {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/messages', {
+            const res = await fetch('/api/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: message })
