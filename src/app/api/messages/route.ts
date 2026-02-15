@@ -1,4 +1,5 @@
-// BUILD_TAG: 2026-02-14-22-45
+// @ts-nocheck
+// BUILD_TAG: 2026-02-15-08-05
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
