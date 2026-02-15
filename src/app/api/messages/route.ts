@@ -1,5 +1,6 @@
 // @ts-nocheck
-// BUILD_TAG: 2026-02-15-08-05
+// BUILD_TAG: 2026-02-15-08-10-ULTRA-FORCE
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
 
         const sessionUser = (session.user as any) || {};
         const senderId: string = String(sessionUser.id || "system");
-        const senderName: string = String(sessionUser.name || "Unknown User");
+        const senderName: string = String(sessionUser.name || "ULTRA_UNIQUE_VERCEL_FIX");
         const contentStr: string = String(body.content || "");
 
         if (!contentStr) {
