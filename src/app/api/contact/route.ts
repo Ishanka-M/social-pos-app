@@ -1,5 +1,4 @@
-// @ts-nocheck
-// BUILD_TAG: 2026-02-15-08-18-IDENTIFIER-CHECK
+// BUILD_TAG: 2026-02-15-10-23-STABLE
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -75,7 +74,11 @@ export async function PUT(req: NextRequest) {
         }
 
         await dbConnect();
-        await Message.findByIdAndUpdate(messageId, { isRead: true });
+        const updated = await Message.findByIdAndUpdate(messageId, { isRead: true });
+
+        if (!updated) {
+            return NextResponse.json({ error: "Message not found" }, { status: 404 });
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {
