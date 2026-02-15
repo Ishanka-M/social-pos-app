@@ -27,7 +27,7 @@ export interface ISocialAccounts {
 export interface IUser extends Document {
     name: string;
     email: string;
-    password?: string;
+    password: string;
     role: 'admin' | 'user';
     webhookUrl?: string; // User's personal Make.com or Zapier webhook
     socialAccounts?: ISocialAccounts;

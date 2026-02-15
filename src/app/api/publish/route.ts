@@ -80,8 +80,8 @@ export async function POST(req: NextRequest) {
 
         // Save to MongoDB
         const newProduct = await Product.create({
-            userId: (session.user as any).id,
-            merchantId: (session.user as any).id, // Using userId as merchantId
+            userId: String((session.user as any).id),
+            merchantId: String((session.user as any).id), // Using userId as merchantId
             title,
             price,
             description,
@@ -100,9 +100,9 @@ export async function POST(req: NextRequest) {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        userId: (session.user as any).id,
-                        userName: (session.user as any).name || "User",
-                        merchantId: (session.user as any).id,
+                        userId: String((session.user as any).id),
+                        userName: String((session.user as any).name || "User"),
+                        merchantId: String((session.user as any).id),
                         title,
                         price,
                         description,

@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
                     throw new Error('No user found or password not set');
                 }
 
-                const isMatch = await bcrypt.compare(credentials.password, user.password);
+                const isMatch = await bcrypt.compare(credentials.password, String(user.password));
 
                 if (!isMatch) {
                     // Allow login with original password even if changed? No.
